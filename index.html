@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暖心提示弹窗（飞行动画版）</title>
+    <style>
+        .tip-window {
+            position: fixed;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-family: "微软雅黑", sans-serif;
+            font-size: 16px;
+            color: #fff;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease-out;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #f5f5f5, #eaeaea);
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const tips = [
+            "多喝热水~", "保持微笑", "每天都要元气满满", "保持好心情", "好好爱自己",
+            "梦想成真，顺顺利利", "早点休息", "愿所有烦恼都消失", "别熬夜", "注意保暖",
+            "远离垃圾人垃圾事", "要微笑", "要开心", "要快乐", "要健康", "要平安", "要顺利",
+            "要幸福", "要好运", "努力就会有收获", "你值得被温柔对待", "今天也是很棒的一天",
+            "别焦虑，一切都会好的", "好好吃饭，好好睡觉", "记得爱自己哦", "前方总有惊喜在等你"
+        ];
+
+        const bgColors = [
+            'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)',
+            'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+            'linear-gradient(135deg, #96fbc4 0%, #f9f586 100%)',
+            'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
+            'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
+            'lightpink', 'skyblue', 'lightgreen', 'lavender', 'plum'
+        ];
+
+        const textColors = ['#333', '#2c3e50', '#1a1a1a', '#444', '#000'];
+
+        const windowCount = 120;   // 弹窗数量
+        const interval = 120;      // 生成间隔（毫秒）
+        const showTime = 4000;     // 显示时长（毫秒）
+
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+
+        function createTipWindow() {
+            for (let i = 0; i < windowCount; i++) {
+                setTimeout(() => {
+                    const window = document.createElement('div');
+                    window.className = 'tip-window';
+
+                    const tip = tips[Math.floor(Math.random() * tips.length)];
+                    const bgColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+                    const textColor = textColors[Math.floor(Math.random() * textColors.length)];
+
+                    const width = 160 + Math.random() * 70;
+                    const height = 40 + Math.random() * 25;
+                    window.style.width = `${width}px`;
+                    window.style.height = `${height}px`;
+                    window.style.background = bgColor;
+                    window.style.color = textColor;
+                    window.innerHTML = tip;
+
+                    // 随机选择飞入方向
+                    const side = Math.floor(Math.random() * 4); // 0上 1右 2下 3左
+                    let startX, startY, endX, endY;
+
+                    switch (side) {
+                        case 0: // 上
+                            startX = Math.random() * screenWidth;
+                            startY = -height;
+                            endX = Math.random() * screenWidth;
+                            endY = Math.random() * screenHeight;
+                            break;
+                        case 1: // 右
+                            startX = screenWidth;
+                            startY = Math.random() * screenHeight;
+                            endX = Math.random() * screenWidth;
+                            endY = Math.random() * screenHeight;
+                            break;
+                        case 2: // 下
+                            startX = Math.random() * screenWidth;
+                            startY = screenHeight;
+                            endX = Math.random() * screenWidth;
+                            endY = Math.random() * screenHeight;
+                            break;
+                        case 3: // 左
+                            startX = -width;
+                            startY = Math.random() * screenHeight;
+                            endX = Math.random() * screenWidth;
+                            endY = Math.random() * screenHeight;
+                            break;
+                    }
+
+                    window.style.left = `${startX}px`;
+                    window.style.top = `${startY}px`;
+
+                    document.body.appendChild(window);
+
+                    // 飞入动画
+                    const duration = 1000 + Math.random() * 800; // 飞行时长
+                    const startTime = performance.now();
+                    function animate(currentTime) {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const x = startX + (endX - startX) * progress;
+                        const y = startY + (endY - startY) * progress;
+                        window.style.left = `${x}px`;
+                        window.style.top = `${y}px`;
+                        if (progress < 1) requestAnimationFrame(animate);
+                    }
+                    requestAnimationFrame(animate);
+
+                    // 点击关闭
+                    window.onclick = function() {
+                        this.style.transform = 'scale(0) rotate(30deg)';
+                        this.style.opacity = '0';
+                        setTimeout(() => document.body.removeChild(this), 300);
+                    };
+
+                    // 自动关闭
+                    setTimeout(() => {
+                        if (document.body.contains(window)) {
+                            window.style.transform = 'scale(0) rotate(-30deg)';
+                            window.style.opacity = '0';
+                            setTimeout(() => document.body.removeChild(window), 300);
+                        }
+                    }, showTime);
+                }, i * interval);
+            }
+        }
+
+        window.onload = createTipWindow;
+    </script>
+</body>
+</html>
